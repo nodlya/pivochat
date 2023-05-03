@@ -6,7 +6,7 @@
         public string Title { get; set; }
         public bool isDelete { get; set; } = false;
         
-        public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<ChatRoomUsers> ChatRoomUsers { get; set; } = new List<ChatRoomUsers>();
         public ICollection<Message> Messages { get; set; } = new List<Message>();
     }
 }
