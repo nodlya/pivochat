@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PivoChat.Models;
 
 namespace PivoChat.Controllers
 {
