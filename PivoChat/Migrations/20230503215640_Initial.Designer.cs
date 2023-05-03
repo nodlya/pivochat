@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PivoChat.Database;
@@ -11,9 +12,11 @@ using PivoChat.Database;
 namespace PivoChat.Migrations
 {
     [DbContext(typeof(ChatContext))]
-    partial class ChatContextModelSnapshot : ModelSnapshot
+    [Migration("20230503215640_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace PivoChat.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("ChatroomUser", b =>
-                {
-                    b.Property<Guid>("ChatroomId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UsersId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ChatroomId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("ChatroomUser");
-                });
 
             modelBuilder.Entity("PivoChat.Models.Chatroom", b =>
                 {
@@ -75,8 +63,6 @@ namespace PivoChat.Migrations
 
                     b.HasIndex("ChatroomId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("ChatMessages");
                 });
 
@@ -84,6 +70,9 @@ namespace PivoChat.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ChatroomId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Login")
@@ -99,22 +88,9 @@ namespace PivoChat.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ChatroomId");
+
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("ChatroomUser", b =>
-                {
-                    b.HasOne("PivoChat.Models.Chatroom", null)
-                        .WithMany()
-                        .HasForeignKey("ChatroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PivoChat.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("PivoChat.Models.Message", b =>
@@ -124,22 +100,20 @@ namespace PivoChat.Migrations
                         .HasForeignKey("ChatroomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.HasOne("PivoChat.Models.User", null)
-                        .WithMany("Messages")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            modelBuilder.Entity("PivoChat.Models.User", b =>
+                {
+                    b.HasOne("PivoChat.Models.Chatroom", null)
+                        .WithMany("Users")
+                        .HasForeignKey("ChatroomId");
                 });
 
             modelBuilder.Entity("PivoChat.Models.Chatroom", b =>
                 {
                     b.Navigation("Messages");
-                });
 
-            modelBuilder.Entity("PivoChat.Models.User", b =>
-                {
-                    b.Navigation("Messages");
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PivoChat.Database;
+using PivoChat.Models;
 using PivoChat.Requests;
 
 namespace PivoChat.Controllers;
@@ -7,29 +9,95 @@ namespace PivoChat.Controllers;
 [ApiController]
 public class MessageController : ControllerBase
 {
-    [HttpGet("{id}")]   // GET /api/message/124
-    public async Task<IActionResult> GetMessage([FromRoute]string id)
+    private readonly ChatContext _context;
+
+    public MessageController(ChatContext context)
     {
-        //TODO вернуть сообщение по id;
-        return Ok();
+        _context = context;
+    }
+
+    
+    [HttpGet("{id}")]   // GET /api/message/124
+    public async Task<IActionResult> GetMessage([FromRoute]Guid id)
+    {
+        try
+        {
+            var message = await _context.ChatMessages.FindAsync(id);
+            if(message is null)
+                return NotFound();
+            
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
     }
     [HttpPost]   // POST /api/message
-    public async Task<IActionResult> CreateChatMessage([FromRoute]string id, [FromBody] CreateMessage request)
+    public async Task<IActionResult> CreateChatMessage([FromRoute]Guid id, [FromBody] CreateMessage request)
     {
-        //TODO добавить сообщение в чат;
-        return Ok();
+        try
+        {
+            Message message = new Message
+            {
+                Text = request.Text, 
+                ChatroomId = request.ChatId,
+                UserId = request.UserId
+            };
+        
+            var res =await _context.ChatMessages.AddAsync(message);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
     }
     
     [HttpPatch("{id}")]   // PATCH /api/chat/124/message
-    public async Task<IActionResult> UpdateMessage([FromRoute]string id, [FromBody] UpdateMessage request)
+    public async Task<IActionResult> UpdateMessage([FromRoute]Guid id, [FromBody] UpdateMessage request)
     {
-        //TODO обновить сообщение;
-        return Ok();
+        try
+        {
+            var message = await _context.ChatMessages.FindAsync(id);
+            if(message is null)
+                return NotFound();
+
+            if(string.IsNullOrWhiteSpace(request.Text))
+                message.Text = request.Text!;
+            
+            var res = _context.ChatMessages.Update(message);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
     }
     [HttpDelete("{id}")]   // DELETE /api/message/124/message
-    public async Task<IActionResult> DeleteMessage([FromRoute]string id)
+    public async Task<IActionResult> DeleteMessage([FromRoute]Guid id)
     {
-        //TODO удалить сообщение из чата;
-        return Ok();
+        try
+        {
+            var message = await _context.ChatMessages.FindAsync(id);
+            if(message is null)
+                return NotFound();
+            
+            var res = _context.ChatMessages.Remove(message);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
     }
 }
+

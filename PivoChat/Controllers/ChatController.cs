@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PivoChat.Database;
+using PivoChat.Models;
 using PivoChat.Requests;
 
 namespace PivoChat.Controllers;
@@ -7,29 +9,121 @@ namespace PivoChat.Controllers;
 [ApiController]
 public class ChatController : ControllerBase
 {
-    [HttpGet("{id}")]   // GET /api/chat/124
-    public async Task<IActionResult> GetChat([FromRoute]string id)
+    
+    private readonly ChatContext _context;
+
+    public ChatController(ChatContext context)
     {
-        //TODO вернуть чат по id;
-        return Ok();
+        _context = context;
+    }
+
+    [HttpGet("{id}")]   // GET /api/chat/124
+    public async Task<IActionResult> GetChat([FromRoute]Guid id)
+    {
+        try
+        {
+            var chatroom = await _context.Chatroom.FindAsync(id);
+            if(chatroom is null)
+                return NotFound();
+            
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
     }
    
     [HttpPost]   // POST /api/chat
-    public async Task<IActionResult> CreateChat([FromBody] CreateChat response)
-    {
-        //TODO создать чата;
-        return Ok();
+    public async Task<IActionResult> CreateChat([FromBody] CreateChat request)
+    { 
+        try
+        {
+            ICollection<User> users = new List<User>(request.Users.Select(x => _context.Users.Find(x)));
+            
+            Chatroom chatroom = new Chatroom
+            {
+                Users = users,
+                Title = request.Title
+            };
+
+            var res = await _context.Chatroom.AddAsync(chatroom);
+            await _context.SaveChangesAsync();
+            
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
     }
+    
+    [HttpPost("{id}/invite")]   // POST /api/chat/111/invite
+    public async Task<IActionResult> InviteChat([FromRoute]Guid id, [FromBody] InviteUser request)
+    { 
+        try
+        {
+            var chatroom = await _context.Chatroom.FindAsync(id);
+            var user = await _context.Users.FindAsync(request.userId);
+            if (chatroom is null || user is null)
+                return NotFound();
+            
+            chatroom.Users.Add(user);
+            var res = await _context.Chatroom.AddAsync(chatroom);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
+    }
+
     [HttpPatch("{id}")]   // PATCH /api/chat/124
-    public async Task<IActionResult> UpdateChat([FromRoute]string id, [FromBody] UpdateChat response)
+    public async Task<IActionResult> UpdateChat([FromRoute]Guid id, [FromBody] UpdateChat request)
     {
-        //TODO обновить чат;
-        return Ok();
+        try
+        {
+            var chatroom = await _context.Chatroom.FindAsync(id);
+            if(chatroom is null)
+                return NotFound();
+
+            if(string.IsNullOrWhiteSpace(request.Title))
+                chatroom.Title = request.Title!;
+            
+            var res = _context.Chatroom.Update(chatroom);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
     }
     [HttpDelete("{id}")]   // DELETE /api/chat/124
-    public async Task<IActionResult> SoftDeleteChat([FromRoute] string id)
+    public async Task<IActionResult> SoftDeleteChat([FromRoute] Guid id)
     {
-        //TODO пометить чат как удаленный;
-        return Ok();
+        try
+        {
+            var chatroom =await _context.Chatroom.FindAsync(id);
+            if(chatroom is null)
+                return NotFound();
+
+            chatroom.isDelete = true;
+         
+            var res = _context.Chatroom.Update(chatroom!);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
     }		
 }

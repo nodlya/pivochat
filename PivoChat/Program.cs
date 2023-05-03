@@ -1,9 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using PivoChat.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddDbContext<ChatContext>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -24,5 +25,11 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.GetService<IServiceScopeFactory>().CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ChatContext>();
+    context.Database.Migrate();
+}
 
 app.Run();

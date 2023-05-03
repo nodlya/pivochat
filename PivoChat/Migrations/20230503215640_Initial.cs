@@ -16,24 +16,12 @@ namespace PivoChat.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false)
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    isDelete = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Chatroom", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Login = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -54,36 +42,26 @@ namespace PivoChat.Migrations
                         principalTable: "Chatroom",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ChatMessages_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatroomUser",
+                name: "Users",
                 columns: table => new
                 {
-                    ChatroomId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Login = table.Column<string>(type: "text", nullable: false),
+                    isBan = table.Column<bool>(type: "boolean", nullable: false),
+                    ChatroomId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatroomUser", x => new { x.ChatroomId, x.UsersId });
+                    table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ChatroomUser_Chatroom_ChatroomId",
+                        name: "FK_Users_Chatroom_ChatroomId",
                         column: x => x.ChatroomId,
                         principalTable: "Chatroom",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ChatroomUser_Users_UsersId",
-                        column: x => x.UsersId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -92,14 +70,9 @@ namespace PivoChat.Migrations
                 column: "ChatroomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatMessages_UserId",
-                table: "ChatMessages",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ChatroomUser_UsersId",
-                table: "ChatroomUser",
-                column: "UsersId");
+                name: "IX_Users_ChatroomId",
+                table: "Users",
+                column: "ChatroomId");
         }
 
         /// <inheritdoc />
@@ -109,13 +82,10 @@ namespace PivoChat.Migrations
                 name: "ChatMessages");
 
             migrationBuilder.DropTable(
-                name: "ChatroomUser");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Chatroom");
-
-            migrationBuilder.DropTable(
-                name: "Users");
         }
     }
 }
