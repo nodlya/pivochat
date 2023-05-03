@@ -22,19 +22,25 @@ namespace PivoChat.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ChatroomUser", b =>
+            modelBuilder.Entity("PivoChat.Models.ChatRoomUsers", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ChatroomId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UsersId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("ChatroomId", "UsersId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("UsersId");
+                    b.HasIndex("ChatroomId");
 
-                    b.ToTable("ChatroomUser");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatRoomUsers");
                 });
 
             modelBuilder.Entity("PivoChat.Models.Chatroom", b =>
@@ -102,17 +108,17 @@ namespace PivoChat.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ChatroomUser", b =>
+            modelBuilder.Entity("PivoChat.Models.ChatRoomUsers", b =>
                 {
                     b.HasOne("PivoChat.Models.Chatroom", null)
-                        .WithMany()
+                        .WithMany("ChatRoomUsers")
                         .HasForeignKey("ChatroomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PivoChat.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
+                        .WithMany("ChatRoomUsers")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -134,11 +140,15 @@ namespace PivoChat.Migrations
 
             modelBuilder.Entity("PivoChat.Models.Chatroom", b =>
                 {
+                    b.Navigation("ChatRoomUsers");
+
                     b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("PivoChat.Models.User", b =>
                 {
+                    b.Navigation("ChatRoomUsers");
+
                     b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618

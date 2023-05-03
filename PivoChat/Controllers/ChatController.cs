@@ -35,23 +35,50 @@ public class ChatController : ControllerBase
             return BadRequest();
         }
     }
+    
+    
+    
+    [HttpGet("{id}/messages")]  // GET /api/chat/124/messages
+    public async Task<IActionResult> GetAllChatMessages([FromRoute]string id)
+    {
+        try
+        {
+            var chat = await _context.Chatroom.FindAsync(id);
+            if(chat is null)
+                return NotFound();
+            
+            var messages = _context.ChatMessages.Where(x => x.ChatroomId == chat.Id);
+            
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
+    }
    
     [HttpPost]   // POST /api/chat
     public async Task<IActionResult> CreateChat([FromBody] CreateChat request)
     { 
         try
         {
-            ICollection<User> users = new List<User>(request.Users.Select(x => _context.Users.Find(x)));
-            
             Chatroom chatroom = new Chatroom
             {
-                Users = users,
                 Title = request.Title
             };
-
-            var res = await _context.Chatroom.AddAsync(chatroom);
-            await _context.SaveChangesAsync();
             
+            ICollection<ChatRoomUsers> users = new List<ChatRoomUsers>(request.Users.Select(x => new ChatRoomUsers
+            {
+                UserId = x,
+                ChatroomId = chatroom.Id
+            }));
+            
+            chatroom.ChatRoomUsers = users;
+
+            await _context.ChatRoomUsers.AddRangeAsync(users);
+            await _context.Chatroom.AddAsync(chatroom);
+            await _context.SaveChangesAsync();
             return Ok();
         }
         catch (Exception ex)
@@ -70,9 +97,16 @@ public class ChatController : ControllerBase
             var user = await _context.Users.FindAsync(request.userId);
             if (chatroom is null || user is null)
                 return NotFound();
-            
-            chatroom.Users.Add(user);
-            var res = await _context.Chatroom.AddAsync(chatroom);
+
+            ChatRoomUsers chatRoomUsers = new ChatRoomUsers
+            {
+                ChatroomId = chatroom.Id,
+                UserId = user.Id
+            };
+            chatroom.ChatRoomUsers.Add(chatRoomUsers);
+
+            await _context.ChatRoomUsers.AddAsync(chatRoomUsers);
+            _context.Chatroom.Update(chatroom);
             await _context.SaveChangesAsync();
             return Ok();
         }

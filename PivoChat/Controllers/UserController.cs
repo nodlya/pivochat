@@ -16,7 +16,6 @@ public class UserController : ControllerBase
         _context = context;
     }
 
-    /*
     [HttpGet("{id}")]  // GET /api/user/124/chats
     public async Task<IActionResult> GetAllUserChats([FromRoute]string id)
     {
@@ -25,9 +24,11 @@ public class UserController : ControllerBase
             var user = await _context.Users.FindAsync(id);
             if(user is null)
                 return NotFound();
-
-            var chats = user.Chatroom;
-            return Ok(chats);
+            
+            var ChatroomsID = _context.ChatRoomUsers.Where(x => x.UserId == user.Id);
+            var Chatrooms = ChatroomsID.Select(async x => await _context.Chatroom.FindAsync(x));
+            
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -35,7 +36,24 @@ public class UserController : ControllerBase
             return BadRequest();
         }
     }
-    */
+    
+    [HttpGet("/users")]  // GET /api/users
+    public async Task<IActionResult> GetAllUsers()
+    {
+        try
+        {
+            var chat = _context.Chatroom.ToList();
+            if(chat is null)
+                return NotFound();
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
+    }
     
     [HttpGet("{id}")]   // GET /api/user/124
     public async Task<IActionResult> GetUser([FromRoute]Guid id)

@@ -8,6 +8,7 @@ namespace PivoChat.Database
         public DbSet<Chatroom> Chatroom { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Message> ChatMessages { get; set; }
+        public DbSet<ChatRoomUsers> ChatRoomUsers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
