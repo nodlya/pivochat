@@ -11,11 +11,12 @@ namespace PivoChat.Database
 
         public ChatContext()
         {
-            Database.EnsureCreated();
+            /*Database.EnsureDeleted();
+            Database.EnsureCreated();*/
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=pivochat;Port=5432;Database=Pivochat;Username=postgres;Password=postgres");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Pivochat;Username=postgres;Password=0000");
         }
 
     }
