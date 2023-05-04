@@ -27,7 +27,7 @@ public class ChatController : ControllerBase
                 return NotFound();
             
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(chatroom);
         }
         catch (Exception ex)
         {
@@ -39,7 +39,7 @@ public class ChatController : ControllerBase
     
     
     [HttpGet("{id}/messages")]  // GET /api/chat/124/messages
-    public async Task<IActionResult> GetAllChatMessages([FromRoute]string id)
+    public async Task<IActionResult> GetAllChatMessages([FromRoute]Guid id)
     {
         try
         {
@@ -49,7 +49,7 @@ public class ChatController : ControllerBase
             
             var messages = _context.ChatMessages.Where(x => x.ChatroomId == chat.Id);
             
-            return Ok();
+            return Ok(messages);
         }
         catch (Exception ex)
         {
@@ -79,7 +79,7 @@ public class ChatController : ControllerBase
             await _context.ChatRoomUsers.AddRangeAsync(users);
             await _context.Chatroom.AddAsync(chatroom);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(chatroom);
         }
         catch (Exception ex)
         {
@@ -108,7 +108,7 @@ public class ChatController : ControllerBase
             await _context.ChatRoomUsers.AddAsync(chatRoomUsers);
             _context.Chatroom.Update(chatroom);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(chatRoomUsers);
         }
         catch (Exception ex)
         {
@@ -129,9 +129,9 @@ public class ChatController : ControllerBase
             if(string.IsNullOrWhiteSpace(request.Title))
                 chatroom.Title = request.Title!;
             
-            var res = _context.Chatroom.Update(chatroom);
+            _context.Chatroom.Update(chatroom);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(chatroom);
         }
         catch (Exception ex)
         {
@@ -150,9 +150,9 @@ public class ChatController : ControllerBase
 
             chatroom.isDelete = true;
          
-            var res = _context.Chatroom.Update(chatroom!);
+             _context.Chatroom.Update(chatroom!);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(chatroom);
         }
         catch (Exception ex)
         {

@@ -16,8 +16,8 @@ public class UserController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("{id}")]  // GET /api/user/124/chats
-    public async Task<IActionResult> GetAllUserChats([FromRoute]string id)
+    [HttpGet("{id}/chats")]  // GET /api/user/124/chats
+    public async Task<IActionResult> GetAllUserChats([FromRoute]Guid id)
     {
         try
         {
@@ -25,10 +25,10 @@ public class UserController : ControllerBase
             if(user is null)
                 return NotFound();
             
-            var ChatroomsID = _context.ChatRoomUsers.Where(x => x.UserId == user.Id);
-            var Chatrooms = ChatroomsID.Select(async x => await _context.Chatroom.FindAsync(x));
+            var ChatroomsID = _context.ChatRoomUsers.Where(x => x.UserId == user.Id).ToList();
+            var res = ChatroomsID.Select(x => _context.Chatroom.Find(x.ChatroomId)).ToList();
             
-            return Ok();
+            return Ok(res);
         }
         catch (Exception ex)
         {
@@ -42,11 +42,11 @@ public class UserController : ControllerBase
     {
         try
         {
-            var chat = _context.Chatroom.ToList();
-            if(chat is null)
+            var res = _context.Users.ToList();
+            if(res is null)
                 return NotFound();
 
-            return Ok();
+            return Ok(res);
         }
         catch (Exception ex)
         {
@@ -65,7 +65,7 @@ public class UserController : ControllerBase
                 return NotFound();
             
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(user);
         }
         catch (Exception ex)
         {
@@ -86,7 +86,7 @@ public class UserController : ControllerBase
             };
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(user);
         }
         catch (Exception ex)
         {
@@ -103,14 +103,14 @@ public class UserController : ControllerBase
             if(user is null)
                 return NotFound();
             
-            if (string.IsNullOrWhiteSpace(request.Login))
+            if (!string.IsNullOrWhiteSpace(request.Login))
                 user!.Login = request.Login!;
-            if (string.IsNullOrWhiteSpace(request.Name))
+            if (!string.IsNullOrWhiteSpace(request.Name))
                 user!.Name = request.Name!;
 
-            var res = _context.Users.Update(user!);
+           _context.Users.Update(user!);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(user);
         }
         catch (Exception ex)
         {
@@ -131,7 +131,7 @@ public class UserController : ControllerBase
          
             var res = _context.Users.Update(user!);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(user);
         }
         catch (Exception ex)
         {

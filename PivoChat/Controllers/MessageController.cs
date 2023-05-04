@@ -27,7 +27,7 @@ public class MessageController : ControllerBase
                 return NotFound();
             
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(message);
         }
         catch (Exception ex)
         {
@@ -36,7 +36,7 @@ public class MessageController : ControllerBase
         }
     }
     [HttpPost]   // POST /api/message
-    public async Task<IActionResult> CreateChatMessage([FromRoute]Guid id, [FromBody] CreateMessage request)
+    public async Task<IActionResult> CreateChatMessage([FromBody] CreateMessage request)
     {
         try
         {
@@ -47,9 +47,9 @@ public class MessageController : ControllerBase
                 UserId = request.UserId
             };
         
-            var res =await _context.ChatMessages.AddAsync(message);
+            await _context.ChatMessages.AddAsync(message);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(message);
         }
         catch (Exception ex)
         {
@@ -67,12 +67,12 @@ public class MessageController : ControllerBase
             if(message is null)
                 return NotFound();
 
-            if(string.IsNullOrWhiteSpace(request.Text))
+            if(!string.IsNullOrWhiteSpace(request.Text))
                 message.Text = request.Text!;
             
-            var res = _context.ChatMessages.Update(message);
+            _context.ChatMessages.Update(message);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(message);
         }
         catch (Exception ex)
         {
@@ -89,9 +89,9 @@ public class MessageController : ControllerBase
             if(message is null)
                 return NotFound();
             
-            var res = _context.ChatMessages.Remove(message);
+            _context.ChatMessages.Remove(message);
             await _context.SaveChangesAsync();
-            return Ok();
+            return Ok(message);
         }
         catch (Exception ex)
         {
