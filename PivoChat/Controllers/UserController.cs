@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PivoChat.Database;
-using PivoChat.Models;
 using PivoChat.Requests;
-using PivoChat.Services;
 
 namespace PivoChat.Controllers;
 
@@ -37,7 +36,7 @@ public class UserController : ControllerBase
             return BadRequest();
         }
     }
-    
+    [Authorize]
     [HttpGet("/users")]  // GET /api/users
     public async Task<IActionResult> GetAllUsers()
     {
