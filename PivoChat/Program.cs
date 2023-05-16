@@ -29,7 +29,7 @@ app.MapControllers();
 using (var scope = app.Services.GetService<IServiceScopeFactory>().CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ChatContext>();
-    context.Database.Migrate();
+   // context.Database.Migrate();
 }
 
 app.Run();

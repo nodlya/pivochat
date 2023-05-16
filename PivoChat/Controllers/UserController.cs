@@ -2,6 +2,7 @@
 using PivoChat.Database;
 using PivoChat.Models;
 using PivoChat.Requests;
+using PivoChat.Services;
 
 namespace PivoChat.Controllers;
 
@@ -73,27 +74,7 @@ public class UserController : ControllerBase
             return BadRequest();
         }
     }
-
-    [HttpPost]   // Post/api/user
-    public async Task<IActionResult> CreateUser([FromBody] CreateUser request)
-    {
-        try
-        {
-            User user = new User
-            {
-                Name = request.Name, 
-                Login = request.Login
-            };
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-            return Ok(user);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            return BadRequest();
-        }
-    }
+    
     [HttpPatch("{id}")]   // Patch/api/user/124
     public async Task<IActionResult> UpdateUser([FromRoute]Guid id, [FromBody] UpdateUser request)
     {
@@ -104,11 +85,13 @@ public class UserController : ControllerBase
                 return NotFound();
             
             if (!string.IsNullOrWhiteSpace(request.Login))
-                user!.Login = request.Login!;
+                user.Login = request.Login!;
             if (!string.IsNullOrWhiteSpace(request.Name))
-                user!.Name = request.Name!;
+                user.Name = request.Name!;
+            if (!string.IsNullOrWhiteSpace(request.Password))
+                user.Password = request.Password!;
 
-           _context.Users.Update(user!);
+            _context.Users.Update(user!);
             await _context.SaveChangesAsync();
             return Ok(user);
         }
@@ -129,7 +112,7 @@ public class UserController : ControllerBase
 
             user.isBan = true;
          
-            var res = _context.Users.Update(user!);
+            _context.Users.Update(user!);
             await _context.SaveChangesAsync();
             return Ok(user);
         }
