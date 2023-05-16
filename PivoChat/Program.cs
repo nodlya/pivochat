@@ -4,12 +4,12 @@ using PivoChat.Database;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddDbContext<ChatContext>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ChatContext>(x => x.UseNpgsql("Host=localhost;Port=5432;Database=Pivochat;Username=postgres;Password=postgres"));
+
 
 var app = builder.Build();
 
