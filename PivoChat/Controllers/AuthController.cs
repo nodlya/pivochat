@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PivoChat.Database;
@@ -20,7 +21,7 @@ public class AuthController : ControllerBase
         _context = context;
     }
     
-    [HttpPost("/reg")]   // Post/api/reg
+    [HttpPost("reg")]   // Post/api/reg
     public async Task<IActionResult> Registration([FromBody] CreateUser request)
     {
         try
@@ -45,8 +46,8 @@ public class AuthController : ControllerBase
         }
     }
     
-    [HttpPost("/login")]   // Post/api/reg
-    public async Task<IActionResult> Authorization([FromBody] AuthUser request)
+    [HttpPost("login")]   // Post/api/reg
+    public async Task<IActionResult> Login([FromBody] AuthUser request)
     {
         try
         {
@@ -58,6 +59,25 @@ public class AuthController : ControllerBase
             var jwt = JwtToken.GenerateToken(user);
             
             return Ok(new { Jwt = jwt, User = user });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return BadRequest();
+        }
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        try //todo доделать, как достать jwt и откуда
+        {
+            var tokenFromCookie = Request.Cookies["jwt"];
+ 
+            Response.Cookies.Delete(tokenFromCookie);
+            return Ok("Вы успешно вышли из учетной записи");
+
+
         }
         catch (Exception ex)
         {
