@@ -21,7 +21,7 @@ public static class JwtToken
             claims: claims,
             expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(2)), // время действия 2 минуты
             signingCredentials: new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.ASCII.GetBytes("'very_secret_and_complex_key_12345'")), 
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes("very_secret_and_complex_key_12345")), 
                 SecurityAlgorithms.HmacSha256));
             
         return new JwtSecurityTokenHandler().WriteToken(jwt);

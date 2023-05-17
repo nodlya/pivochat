@@ -35,6 +35,7 @@ public class AuthController : ControllerBase
             await _context.SaveChangesAsync();
             var jwt = JwtToken.GenerateToken(user);
             
+            
             return Ok(new { Jwt = jwt, User = user });
         }
         catch (Exception ex)
@@ -44,7 +45,7 @@ public class AuthController : ControllerBase
         }
     }
     
-    [HttpPost("/auth")]   // Post/api/reg
+    [HttpPost("/login")]   // Post/api/reg
     public async Task<IActionResult> Authorization([FromBody] AuthUser request)
     {
         try
