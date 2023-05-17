@@ -37,7 +37,7 @@ public class UserController : ControllerBase
         }
     }
     [Authorize]
-    [HttpGet("/users")]  // GET /api/users
+    [HttpGet("users")]  // GET /api/users
     public async Task<IActionResult> GetAllUsers()
     {
         try

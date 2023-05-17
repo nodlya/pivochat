@@ -1,6 +1,9 @@
-﻿namespace PivoChat.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PivoChat.Requests;
 
 public class UpdateMessage
 {
-    public string? Text { get; set; } = null;
+    [Required]
+    public string Text { get; set; }
 }
