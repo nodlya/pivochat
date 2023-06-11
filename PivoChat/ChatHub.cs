@@ -9,10 +9,11 @@ namespace PivoChat
 
         public override async Task OnConnectedAsync()
         {
-            //var userId = Context.GetHttpContext().Request.Query["userId"].ToString();
+            var chatId = Context.GetHttpContext().Request.Query["chatId"].ToString();
+            Console.WriteLine(chatId);
             if (!string.IsNullOrEmpty(Context.ConnectionId))
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, "111");
+                await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
             }
             await base.OnConnectedAsync();
         }
@@ -23,9 +24,9 @@ namespace PivoChat
             return base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SendMessage(string recipient, string message, string user)
+        public async Task SendMessage(string recipient, string message)
         {
-            await Clients.Group(recipient).SendAsync("SendMessage", message, user);
+            await Clients.Group(recipient).SendAsync("SendMessage", message);
             
             /*string recipientConnectionId = _users.FirstOrDefault(u => u.Value == recipient).Key;
 
