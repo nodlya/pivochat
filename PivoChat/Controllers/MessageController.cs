@@ -45,19 +45,20 @@ public class MessageController : ControllerBase
     {
         try
         {
+            var user = await _context.Users.FindAsync(request.UserId);
             Message message = new Message
             {
                 Text = request.Text, 
                 ChatroomId = request.ChatId,
-                UserId = request.UserId
+                UserId = request.UserId,
+                User = user!,
+                CreateDate = DateTime.UtcNow
             };
-            
-            
+
             await hubContext.Clients.Group(request.ChatId.ToString()).SendAsync("SendMessage",message );
 
             await _context.ChatMessages.AddAsync(message);
             await _context.SaveChangesAsync();
-           
             return Ok(message);
         }
         catch (Exception ex)

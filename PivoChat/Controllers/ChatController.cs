@@ -48,11 +48,12 @@ public class ChatController : ControllerBase
             var chat = await _context.Chatroom.FindAsync(id);
             if(chat is null)
                 return NotFound();
-            
+
             var messages = _context.ChatMessages
-                .Include(x => x.User)
-                .Where(x => x.ChatroomId == chat.Id)
-                .ToList();
+                .Where(x => x.ChatroomId == chat.Id);
+                
+            messages = messages.Include(x => x.User);
+            messages = messages.OrderBy(x => x.CreateDate);
 
             return Ok(messages);
         }
