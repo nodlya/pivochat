@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using PivoChat.Database;
 using PivoChat.Models;
 using PivoChat.Requests;
@@ -11,12 +12,14 @@ public class ChatController : ControllerBase
 {
     
     private readonly ChatContext _context;
+    IHubContext<ChatHub> hubContext;
 
-    public ChatController(ChatContext context)
+    public ChatController(ChatContext context,IHubContext<ChatHub> hubContext)
     {
         _context = context;
+        this.hubContext = hubContext;
     }
-
+    
     [HttpGet("{id}")]   // GET /api/chat/124
     public async Task<IActionResult> GetChat([FromRoute]Guid id)
     {
@@ -76,6 +79,12 @@ public class ChatController : ControllerBase
             
             chatroom.ChatRoomUsers = users;
 
+            foreach (var user in users)
+            {
+                await hubContext.Groups.AddToGroupAsync(user.Id.ToString(), chatroom.Id.ToString());    
+            }
+            
+            
             await _context.ChatRoomUsers.AddRangeAsync(users);
             await _context.Chatroom.AddAsync(chatroom);
             await _context.SaveChangesAsync();

@@ -76,8 +76,6 @@ public class AuthController : ControllerBase
  
             Response.Cookies.Delete(tokenFromCookie);
             return Ok("Вы успешно вышли из учетной записи");
-
-
         }
         catch (Exception ex)
         {
