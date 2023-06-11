@@ -8,7 +8,7 @@
         public string Password { get; set; }
         public bool isBan { get; set; } = false;
 
-        public ICollection<Message> Messages { get; set; } = new List<Message>();
+        /*public ICollection<Message> Messages { get; set; } = new List<Message>();*/
         public ICollection<ChatRoomUsers> ChatRoomUsers { get; set; } = new List<ChatRoomUsers>();
     }
 

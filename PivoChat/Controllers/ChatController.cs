@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using PivoChat.Database;
 using PivoChat.Models;
 using PivoChat.Requests;
@@ -39,8 +40,6 @@ public class ChatController : ControllerBase
         }
     }
     
-    
-    
     [HttpGet("{id}/messages")]  // GET /api/chat/124/messages
     public async Task<IActionResult> GetAllChatMessages([FromRoute]Guid id)
     {
@@ -50,8 +49,11 @@ public class ChatController : ControllerBase
             if(chat is null)
                 return NotFound();
             
-            var messages = _context.ChatMessages.Where(x => x.ChatroomId == chat.Id);
-            
+            var messages = _context.ChatMessages
+                .Include(x => x.User)
+                .Where(x => x.ChatroomId == chat.Id)
+                .ToList();
+
             return Ok(messages);
         }
         catch (Exception ex)

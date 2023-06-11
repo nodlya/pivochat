@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 using PivoChat.Database;
 using PivoChat.Models;
 using PivoChat.Requests;
@@ -48,22 +51,13 @@ public class MessageController : ControllerBase
                 ChatroomId = request.ChatId,
                 UserId = request.UserId
             };
+            
+            
+            await hubContext.Clients.Group(request.ChatId.ToString()).SendAsync("SendMessage",message );
 
-            
-            await hubContext.Clients.Group(request.ChatId.ToString()).SendAsync("sendToGroup", message);
-            
-            /*string recipientConnectionId = _users.FirstOrDefault(u => u.Value == recipient).Key;
-
-            if (!string.IsNullOrEmpty(recipientConnectionId))
-            {
-                await Clients.Client(recipientConnectionId).SendAsync("ReceiveMessage", 
-                    Context.GetHttpContext()!.Request.Query["userName"], message);
-            }
-        
-            await hubContext.Clients.All.SendAsync("Notify", $"Добавлено: {product} - {DateTime.Now.ToShortTimeString()}");*/
-            
             await _context.ChatMessages.AddAsync(message);
             await _context.SaveChangesAsync();
+           
             return Ok(message);
         }
         catch (Exception ex)

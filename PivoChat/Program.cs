@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PivoChat;
 using PivoChat.Database;
@@ -70,7 +71,7 @@ app.UseHttpsRedirection();
 using (var scope = app.Services.GetService<IServiceScopeFactory>().CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ChatContext>();
-   // context.Database.Migrate();
+       // context.Database.Migrate();
 }
 
 
