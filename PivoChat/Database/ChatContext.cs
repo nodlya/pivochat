@@ -9,6 +9,7 @@ namespace PivoChat.Database
         public DbSet<User> Users { get; set; }
         public DbSet<Message> ChatMessages { get; set; }
         public DbSet<ChatRoomUsers> ChatRoomUsers { get; set; }
+        public DbSet<UserToken> UserTokens { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=Pivochat;Username=postgres;Password=0000");

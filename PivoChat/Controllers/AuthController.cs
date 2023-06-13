@@ -68,13 +68,14 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout([FromBody]string jwt)
     {
-        try //todo доделать, как достать jwt и откуда
+        try
         {
-            var tokenFromCookie = Request.Cookies["jwt"];
- 
-            Response.Cookies.Delete(tokenFromCookie);
+            var userToken = _context.UserTokens.First(x => x.Token == jwt);
+            _context.UserTokens.Remove(userToken);
+            
+            await _context.SaveChangesAsync();
             return Ok("Вы успешно вышли из учетной записи");
         }
         catch (Exception ex)
